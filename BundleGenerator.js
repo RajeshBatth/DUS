@@ -32,7 +32,8 @@ var argv = require('yargs')
     .string('config').describe('config', 'DeploymentConfig for the deployer')
     .choices('platform', ['android', 'ios']).describe('platform', 'platform to generate bundles for')
     .string('updateGraphVersion').describe('updateGraphVersion', 'Enter a update graph version higher than the previous deployment')
-    .string('outputPath')
+    .string('entry')
+    .option('outputPath')
     .string('prodUpdateGraph').describe('prodUpdateGraph', 'filepath of update patch already in production')
     .argv;
 var deploymentConfigFile = fs.readFileSync(argv.config, { encoding: 'utf-8' });
@@ -68,10 +69,11 @@ deploymentConfig.deploymentJob.forEach(function (deploymentJob, index) {
          */
         if (argv.platform === 'android') {
             executeShellCommand('cd ' + path.join('repositories', index.toString(), 'fk-react-native') + ' && ' +
-                'react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output ../../../bundles/' + index + '.bundle');
+                'react-native bundle --platform android --dev false --entry-file '+argv.entry+' --bundle-output ../../../bundles/' + index + '.bundle');
         } else {
             executeShellCommand('cd ' + path.join('repositories', index.toString(), 'fk-react-native') + ' && ' +
-                'react-native bundle --platform ios --dev false --entry-file index.ios.js --bundle-output ../../../bundles/' + index + '.bundle');
+                'react-native bundle --platform ios --dev false --entry-file '+argv.entry+' --bundle-output' +
+              ' ../../../bundles/' + index + '.bundle');
         }
         /**Copying the generated bundles to respective app versions directory */
         deploymentJob.appVersions.forEach(function (appVersion) {
